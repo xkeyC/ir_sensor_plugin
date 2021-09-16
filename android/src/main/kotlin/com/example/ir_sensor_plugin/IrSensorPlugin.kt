@@ -12,6 +12,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
@@ -95,22 +96,23 @@ class IrSensorPlugin : FlutterPlugin, MethodCallHandler {
         }
         //final int frequency = 38;
         if (codeForEmitter != "") {
-            GlobalScope.launch(Dispatchers.IO) {
-                irManager!!.transmit(frequency, hex2dec(codeForEmitter))
-                GlobalScope.launch(Dispatchers.Main) {
-                    result.success("Emitting")
+            GlobalScope.launch(Dispatchers.Main) {
+                withContext(Dispatchers.IO) {
+                    irManager!!.transmit(frequency, hex2dec(codeForEmitter))
                 }
+                result.success("Emitting")
             }
         }
     }
 
     private fun transmit(result: MethodChannel.Result, listInt: ArrayList<Int>) {
         if (listInt.isNotEmpty()) {
-            GlobalScope.launch(Dispatchers.IO) {
-                irManager!!.transmit(frequency, convertIntegers(listInt))
-                GlobalScope.launch(Dispatchers.Main) {
-                    result.success("Emitting")
+            GlobalScope.launch(Dispatchers.Main) {
+                withContext(Dispatchers.IO) {
+                    irManager!!.transmit(frequency, convertIntegers(listInt))
+
                 }
+                result.success("Emitting")
             }
         }
     }
